@@ -19,12 +19,6 @@ function kss_menu() {
     'theme callback' => '_kss_page_theme',
     'theme arguments' => array($default),
   );
-  $items['admin/appearance/kss/settings'] = array(
-    'title' => 'Living Style Guide Settings',
-    'page callback' => 'drupal_get_form',
-    'access arguments' => array('access content'),
-    'page arguments' => array('kss_page_settings'),
-  );
   return $items;
 }
 
