@@ -1,0 +1,137 @@
+<?php
+/**
+ * Implements hook_menu().
+ */
+function kss_menu() {
+  $default = variable_get('theme_default', 'bartik');
+  $items['admin/appearance/kss'] = array(
+    'title' => 'Living Style Guide',
+    'page callback' => 'kss_page',
+    'access arguments' => array('access content'),
+    'theme callback' => '_kss_page_theme',
+    'theme arguments' => array($default),
+  );
+  $items['admin/appearance/kss/%'] = array(
+    'title' => 'Living Style Guide',
+    'page callback' => 'kss_page_section',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+    'theme callback' => '_kss_page_theme',
+    'theme arguments' => array($default),
+  );
+  $items['admin/appearance/kss/settings'] = array(
+    'title' => 'Living Style Guide Settings',
+    'page callback' => 'drupal_get_form',
+    'access arguments' => array('access content'),
+    'page arguments' => array('kss_page_settings'),
+  );
+  return $items;
+}
+
+function _kss_page_theme($theme) {
+  return $theme;
+}
+
+function kss_page() {
+  $output = '';
+  try {
+    require_once(__DIR__ . '/vendor/autoload.php');
+
+    $kss = new \Scan\Kss\Parser(DRUPAL_ROOT . '/' . drupal_get_path('theme', variable_get('theme_default', NULL)));
+
+    foreach ($kss->getTopLevelSections() as $topLevelSection) {
+      $output .= '<li>
+          <a href="/admin/appearance/kss/'.$topLevelSection->getReference().'" title="'.$topLevelSection->getDescription().'">' .
+              $topLevelSection->getTitle() .
+          '</a>' .
+      '</li>';
+    }
+
+  } catch (Exception $e) {
+    $output = $e->getMessage();
+  }
+  return $output;
+}
+
+function kss_page_section($args) {
+  /**
+   * @todo clean this up
+   */
+  require_once(__DIR__ . '/vendor/autoload.php');
+  $reference = (isset($args) && preg_match('/(\d+\.?)+/', $args)) ? $args : '1';
+  $kss = new \Scan\Kss\Parser(DRUPAL_ROOT . '/' . drupal_get_path('theme', variable_get('theme_default', NULL)));
+
+  try {
+      $section = $kss->getSection($reference);
+  } catch (UnexpectedValueException $e) {
+      $reference = '1';
+      $section = $kss->getSection($reference);
+  }
+
+  $output = '<h1>' . $section->getTitle() . '</h1>';
+  foreach ($kss->getSectionChildren($reference) as $section) {
+
+    $output .= '<div class="styleguide" id="r' . $section->getReference() . '"><!-- .styleguide -->
+      <h3 class="styleguide__header">
+        <a href="#r' . $section->getReference() . '">
+            <span class="styleguide__reference">' . $section->getReference() . '</span>
+            <span class="styleguide__title">' . $section->getTitle() . '</span>
+            <!-- <span class="styleguide__filename">' . $section->getFilename() . '</span> -->
+        </a>
+      </h3>
+
+      <div class="styleguide__description"><!-- .styleguide__description -->
+      <p>' . nl2br($section->getDescription()) . '</p>';
+
+    if (count($section->getModifiers()) > 0) {
+      $output .= '<ul class="styleguide__modifiers">';
+      foreach ($section->getModifiers() as $modifier) {
+        $extender = '';
+        if ($modifier->isExtender()) {
+          $extender = 'styleguide__modifier-name--extender';
+        }
+        $output .= '<li>';
+        $output .= '<span class="styleguide__modifier-name ' . $extender . '">';
+        $output .= $modifier->getName();
+        $output .= '</span>';
+        if ($modifier->isExtender()) {
+          $output .= '@extend';
+          $output .= '<span class="styleguide__modifier-name">' . $modifier->getExtendedClass() . '</span>';
+        }
+        if ($modifier->getDescription()) {
+          $output .= '- ' . $modifier->getDescription();
+        }
+        $output .= '</li>';
+      }
+      $output .= '</ul>';
+    }
+
+    $output .= '</div><!-- /.styleguide__description -->';
+
+    $output .= '<div class="styleguide__elements"><!-- .styleguide__elements -->' . PHP_EOL;
+    $output .= '<div class="styleguide__element">' . $section->getMarkupNormal() . '</div>' . PHP_EOL;
+
+    foreach ($section->getModifiers() as $modifier) {
+      $extender = '';
+      $extender_label = '';
+
+      if ($modifier->isExtender()) {
+        $extender = 'styleguide__element--extender';
+        $extender_label = 'styleguide__element__modifier-label--extender';
+      }
+      $output .= '<div class="styleguide__element styleguide__element--modifier ' . $extender . '">' . PHP_EOL;
+      $output .= '<span class="styleguide__element__modifier-label ' . $extender_label . '">' . $modifier->getName() . '</span>' . PHP_EOL;
+      $output .= $modifier->getExampleHtml() . PHP_EOL;
+      $output .= '</div>' . PHP_EOL;
+    }
+
+    $output .= '</div><!-- /.styleguide__elements -->' . PHP_EOL;
+    $output .= '<div class="styleguide__html"><!-- .styleguide__html -->
+                    <pre class="styleguide__code"><code>' . htmlentities($section->getMarkupNormal('{class}')) . '</code></pre>
+                </div><!-- /.styleguide__html -->';
+
+    $output .= '</div><!-- .styleguide -->';
+
+  }
+  return $output;
+}
