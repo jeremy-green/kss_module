@@ -1,5 +1,6 @@
 {
   "require": {
-    "scan/kss-php": "dev-master"
+    "scan/kss-php": "dev-master",
+    "erusev/parsedown": "dev-master"
   }
 }

@@ -8,4 +8,5 @@ $baseDir = dirname($vendorDir);
 return array(
     'Symfony\\Component\\Finder\\' => array($vendorDir . '/symfony/finder'),
     'Scan\\Kss' => array($vendorDir . '/scan/kss-php/lib'),
+    'Parsedown' => array($vendorDir . '/erusev/parsedown'),
 );

@@ -31,6 +31,13 @@ function kss_page() {
   try {
     require_once(__DIR__ . '/vendor/autoload.php');
 
+    $dir = DRUPAL_ROOT . '/' . drupal_get_path('theme', variable_get('theme_default', NULL));
+    $files = file_scan_directory($dir, '/styleguide.md$/');
+    foreach ($files as $uri => $info) {
+      $text = file_get_contents($uri);
+      $output .= Parsedown::instance()->parse($text);
+    }
+
     $kss = new \Scan\Kss\Parser(DRUPAL_ROOT . '/' . drupal_get_path('theme', variable_get('theme_default', NULL)));
 
     foreach ($kss->getTopLevelSections() as $topLevelSection) {
