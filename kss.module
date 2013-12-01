@@ -4,14 +4,14 @@
  */
 function kss_menu() {
   $default = variable_get('theme_default', 'bartik');
-  $items['admin/appearance/kss'] = array(
+  $items['admin/appearance/living-styleguide'] = array(
     'title' => 'Living Style Guide',
     'page callback' => 'kss_page',
     'access arguments' => array('access content'),
     'theme callback' => '_kss_page_theme',
     'theme arguments' => array($default),
   );
-  $items['admin/appearance/kss/%'] = array(
+  $items['admin/appearance/living-styleguide/%'] = array(
     'title' => 'Living Style Guide',
     'page callback' => 'kss_page_section',
     'page arguments' => array(3),
@@ -42,7 +42,7 @@ function kss_page() {
 
     foreach ($kss->getTopLevelSections() as $topLevelSection) {
       $output .= '<li>
-          <a href="/admin/appearance/kss/'.$topLevelSection->getReference().'" title="'.$topLevelSection->getDescription().'">' .
+          <a href="/admin/appearance/living-styleguide/'.$topLevelSection->getReference().'" title="'.$topLevelSection->getDescription().'">' .
               $topLevelSection->getTitle() .
           '</a>' .
       '</li>';
