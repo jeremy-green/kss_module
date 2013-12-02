@@ -22,10 +22,39 @@ function kss_menu() {
   return $items;
 }
 
+
+/**
+ * Implements hook_system_theme_page_alter().
+ */
+function kss_system_themes_page_alter(&$theme_groups) {
+  foreach ($theme_groups as $group => $members) {
+    if (empty($group)) {
+      continue;
+    }
+    foreach ($members as $key => $theme) {
+      if (!empty($theme->is_default)) {
+        $theme_groups[$group][$key]->operations[] = array(
+          'title' => t('Living Style guide'),
+          'href' => 'admin/appearance/living-styleguide',
+          'attributes' => array('title' => t('Living Style guide for @theme', array('@theme' => $theme->info['name']))),
+        );
+      }
+    }
+  }
+}
+
+
+/**
+ * Theme callback for the styleguide pages.
+ */
 function _kss_page_theme($theme) {
   return $theme;
 }
 
+
+/**
+ * The living styleguide page.
+ */
 function kss_page() {
   $output = '';
   try {
@@ -54,6 +83,10 @@ function kss_page() {
   return $output;
 }
 
+
+/**
+ * The living styleguide section.
+ */
 function kss_page_section($args) {
   /**
    * @todo clean this up
