@@ -1,6 +1,6 @@
 KSS Module
 ==========
-##This has been moved to https://drupal.org/sandbox/jeremy-green/2176415. For the most up-to-date version, use that.
+###This has been moved to https://drupal.org/sandbox/jeremy-green/2176415. For the most up-to-date version, use that.
 
 A Drupal-fication of http://warpspire.com/kss/syntax || https://github.com/kneath/kss
 
